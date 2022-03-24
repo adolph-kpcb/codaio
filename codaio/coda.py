@@ -798,6 +798,7 @@ class Folder(CodaObject):
 @attr.s(auto_attribs=True, hash=True)
 class Section(CodaObject):
     name: str
+    subtitle: str
     browser_link: str = attr.ib(repr=False)
     document: Document = attr.ib(repr=False)
 
