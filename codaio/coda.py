@@ -277,6 +277,22 @@ class Coda:
         """
         return self.get(f"/docs/{doc_id}/pages", offset=offset, limit=limit)
 
+    def list_pages(self, doc_id: str, offset: int = None, limit: int = None) -> Dict:
+        """
+        Returns a list of pages in a Coda doc.
+
+        Docs: https://coda.io/developers/apis/v1/#operation/listSections
+
+        :param doc_id: ID of the doc. Example: "AbCDeFGH"
+
+        :param limit: Maximum number of results to return in this query.
+
+        :param offset: An opaque token used to fetch the next page of results.
+
+        :return:
+        """
+        return self.get(f"/docs/{doc_id}/pages", offset=offset, limit=limit)
+
     def get_section(self, doc_id: str, section_id_or_name: str) -> Dict:
         """
         Returns details about a section.
@@ -758,6 +774,14 @@ class Document:
             ]
         ]
 
+    def list_pages(self, offset: int = None, limit: int = None) -> List[Page]:
+        return [
+            Page.from_json(i, document=self)
+            for i in self.coda.list_pages(self.id, offset=offset, limit=limit)[
+                "items"
+            ]
+        ]
+
     def list_tables(self, offset: int = None, limit: int = None) -> List[Table]:
         """
         Returns a list of `Table` objects for each table in the document.
@@ -796,9 +820,24 @@ class Folder(CodaObject):
 
 
 @attr.s(auto_attribs=True, hash=True)
-class Section(CodaObject):
+class Icon(CodaObject):
+    name: str
+    browser_link: str = attr.ib(repr=False)
+
+
+@attr.s(auto_attribs=True, hash=True)
+class Page(CodaObject):
     name: str
     subtitle: str
+    browser_link: str = attr.ib(repr=False)
+    document: Document = attr.ib(repr=False)
+    children: List[CodaObject] = attr.ib(repr=False)
+    icon: Icon = attr.ib(repr=False)
+
+
+@attr.s(auto_attribs=True, hash=True)
+class Section(CodaObject):
+    name: str
     browser_link: str = attr.ib(repr=False)
     document: Document = attr.ib(repr=False)
 
